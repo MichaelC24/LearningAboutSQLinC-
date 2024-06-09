@@ -8,7 +8,7 @@ namespace FetchDataExample
         static void Main(string[] args)
         {
             string connectionString = @"Server=LocalHost\sqlexpress01;Database=MichaelFirstDatabase;Trusted_Connection=True;";
-            string queryString = "SELECT cast(Dates as date) as Dates, Event_ FROM dbo.Dates";
+            string queryString = "SELECT cast(Dates as date) as Dates, COALESCE(Event_,'FILLER') FROM dbo.Dates";
             string y_nAppointment = "";
             string appointment = "";
             
@@ -38,37 +38,50 @@ namespace FetchDataExample
 
                     }
                 }
+                    connection.Close();
             }
 
             DateTime[] datesArray = dateList.ToArray();
             string[] stringListArray = stringList.ToArray();
 
-            foreach (DateTime date in datesArray )
-            {
-                Console.WriteLine(date);
-                Console.WriteLine();
-            }
+            //foreach (DateTime date in datesArray)
+            //{
+            //    Console.WriteLine(date);
+            //    foreach (string event_ in stringListArray) {
+            //        Console.WriteLine(date + "   " + event_);
+            //        //Console.WriteLine("        " + event_);
+            //    }
+            //}
             //Console.WriteLine("complete");
 
             DateTime dateSearch = DateTime.MinValue;
-            
+            string dateTempinput = "";
 
-            Console.WriteLine("please insert a date");
-            string dateinput = Console.ReadLine();
+            while (true) {
 
-            if(DateTime.TryParse(dateinput, out dateSearch))
-            {
-                Console.WriteLine("date inputted incorrectly");
+                Console.WriteLine("please insert a date");
+                dateTempinput = Console.ReadLine();
+
+                DateTime result;
+
+                if(DateTime.TryParse(dateTempinput, out result))
+                {
+                    DateTime inputdate = result;
+                    break;
+                }else
+                {
+                    Console.WriteLine("Date inputted incorrectly please use this format MM/DD/YYYY");
+                }
+                
+
             }
-           
-
             foreach (DateTime date in datesArray)
             {
                 if(dateSearch == date)
                 {
                     Console.WriteLine("here is the date you are now looking at would you like to schedule something for this day? Y/N");
                     Console.WriteLine(date);
-                    y_nAppointment = Console.ReadLine();
+                    y_nAppointment = Console.ReadLine().ToLower();
                 }
             }
             if (y_nAppointment == "y")
@@ -76,7 +89,7 @@ namespace FetchDataExample
                 Console.WriteLine("What would you like to put on the schedule");
                 appointment = Console.ReadLine();
 
-                
+
             }
 
             string insertAppt = $"UPDATE Dates SET Event_ = '{appointment}' WHERE Dates = '{dateSearch}'";
@@ -85,6 +98,7 @@ namespace FetchDataExample
             {
                 SqlCommand sqlCommandInsert = new SqlCommand(insertAppt, connection);
                 connection.Open();
+                sqlCommandInsert.ExecuteNonQuery();
 
                 //using (SqlDataAdapter insert = insertAppt.E) 
             }
